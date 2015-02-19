@@ -16,7 +16,6 @@ type Cluster struct {
 func (c *Cluster) Register(serviceName string, endpointUrl string) {
 	c.ServiceName = serviceName
 	c.EndpointUrl = endpointUrl
-	c.PingInterval = 1000 * 1
 	c.EndpointHash = ToSha1(endpointUrl)
 
 	fmt.Println("Cluster: Service registered as: ", serviceName)
@@ -27,6 +26,8 @@ func (c *Cluster) Register(serviceName string, endpointUrl string) {
 
 func Connect(mongoUrl string) *Cluster {
 	cluster := &Cluster{}
+	cluster.PingInterval = 1000 * 5
+
 	cluster.discovery = &MongoDiscovery{}
 	cluster.discovery.Connect(mongoUrl, cluster)
 
