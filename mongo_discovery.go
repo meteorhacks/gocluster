@@ -33,12 +33,15 @@ func (m *MongoDiscovery) Register() {
 }
 
 func (m *MongoDiscovery) ping(stop chan bool) {
-	collection := m.mongoSession.DB("").C("cluster-endpoints")
 	duration := time.Duration(m.cluster.PingInterval) * time.Millisecond
 
 	for {
+		session := m.mongoSession.Copy()
+		collection := session.DB("").C("cluster-endpoints")
+
 		select {
 		case <-stop:
+			session.Close()
 			return
 		default:
 
@@ -54,6 +57,8 @@ func (m *MongoDiscovery) ping(stop chan bool) {
 			}
 
 			collection.Upsert(selector, bson.M{"$set": updatedDoc})
+			session.Close()
+
 			time.Sleep(duration)
 		}
 	}
