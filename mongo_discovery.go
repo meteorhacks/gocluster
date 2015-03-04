@@ -56,9 +56,12 @@ func (m *MongoDiscovery) ping(stop chan bool) {
 				"timestamp":    time.Now(),
 			}
 
-			collection.Upsert(selector, bson.M{"$set": updatedDoc})
-			session.Close()
+			_, err := collection.Upsert(selector, bson.M{"$set": updatedDoc})
+			if err != nil {
+				fmt.Printf("Cluster: Ping failed: %s", err)
+			}
 
+			session.Close()
 			time.Sleep(duration)
 		}
 	}
